@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+*.db
+.env
+.env.*
+*.bak
+*.swp
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Mac/Linux/Windows
+.DS_Store
+Thumbs.db
+
+# Credentials
+credentials.json
+
+# Others
+.docx
