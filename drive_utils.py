@@ -1,14 +1,14 @@
 import os
 import pickle
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
+from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 from google.auth.transport.requests import Request
-from google.auth import exceptions
-from google.auth import credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 import tempfile
 import io
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def authenticate_with_oauth():
@@ -42,7 +42,6 @@ def get_drive_service(api_key=None):
 
 def download_audio_from_drive(file_id, api_key):
     service = get_drive_service(api_key)
-
     request = service.files().get_media(fileId=file_id)
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
 
@@ -60,11 +59,7 @@ def upload_file_to_drive_in_memory(
     file_data, folder_id, api_key=None, final_name="Zoom Call Notes.docx"
 ):
     service = get_drive_service(api_key)
-
-    file_metadata = {
-        "name": final_name,
-        "parents": [folder_id],
-    }
+    file_metadata = {"name": final_name, "parents": [folder_id]}
 
     file_stream = io.BytesIO(file_data)
     media = MediaIoBaseUpload(

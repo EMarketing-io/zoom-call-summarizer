@@ -2,9 +2,11 @@ from docx import Document
 import io
 
 
-def generate_docx(summary_data):
+def generate_docx(summary_data, company_name, meeting_date):
     doc = Document()
-    doc.add_heading("Zoom Call Notes", level=0)
+
+    doc.add_heading(f"{company_name} Meeting Notes", level=0)
+    doc.add_paragraph(f"Date: {meeting_date}", style="Heading 2").alignment = 2
 
     doc.add_heading("1. Minutes of the Meeting (MoM)", level=1)
     for line in summary_data["mom"]:

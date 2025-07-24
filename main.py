@@ -9,10 +9,11 @@ from doc_generator import generate_docx
 from config import (
     GOOGLE_DRIVE_API_KEY,
     GOOGLE_DRIVE_FOLDER_ID,
-)
+)  # Import the API Key and Folder ID from config
 import io
 
 
+# Function to extract the file ID from the Google Drive URL
 def extract_drive_file_id(drive_link):
     match = re.search(r"/d/([a-zA-Z0-9_-]+)", drive_link)
     if match:
@@ -33,6 +34,8 @@ def split_audio(audio_path, chunk_length_ms=5 * 60 * 1000):
 
 
 def main():
+    company_name = input("Enter the company name: ").strip()
+    meeting_date = input("Enter the date of the meeting (dd-mm-yyyy): ").strip()
     drive_link = input("Enter the Google Drive link of the audio file: ").strip()
 
     file_id = extract_drive_file_id(drive_link)
@@ -54,11 +57,13 @@ def main():
     summary_data = generate_summary(transcript_text)
 
     print("📄 Creating DOCX file in memory...")
-    docx_file_data = generate_docx(summary_data)
+    docx_file_data = generate_docx(summary_data, company_name, meeting_date)
+
+    file_name = f"{company_name} Meeting Notes.docx"
 
     print("⬆️ Uploading DOCX to Google Drive...")
     uploaded_link = upload_file_to_drive_in_memory(
-        docx_file_data, GOOGLE_DRIVE_FOLDER_ID
+        docx_file_data, GOOGLE_DRIVE_FOLDER_ID, final_name=file_name
     )
     print(f"✅ File uploaded to Google Drive: {uploaded_link}")
 
