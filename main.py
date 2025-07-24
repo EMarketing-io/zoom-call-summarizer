@@ -1,18 +1,27 @@
 import os
 import shutil
 from pydub import AudioSegment
-
-from drive_utils import (
-    extract_drive_file_id,
-    download_audio_from_drive,
-    get_parent_folder,
-)
+import re
+from drive_utils import upload_file_to_drive_in_memory, download_audio_from_drive
 from transcription import transcribe_audio
 from summarizer import generate_summary
 from doc_generator import generate_docx
+from config import (
+    GOOGLE_DRIVE_API_KEY,
+    GOOGLE_DRIVE_FOLDER_ID,
+)
+import io
 
 
-def split_audio(audio_path, chunk_length_ms=5 * 60 * 1000):  # 5 minutes
+def extract_drive_file_id(drive_link):
+    match = re.search(r"/d/([a-zA-Z0-9_-]+)", drive_link)
+    if match:
+        return match.group(1)
+    else:
+        raise ValueError("Invalid Google Drive link. Could not extract file ID.")
+
+
+def split_audio(audio_path, chunk_length_ms=5 * 60 * 1000):
     audio = AudioSegment.from_file(audio_path)
     chunks = []
     for i in range(0, len(audio), chunk_length_ms):
@@ -25,13 +34,14 @@ def split_audio(audio_path, chunk_length_ms=5 * 60 * 1000):  # 5 minutes
 
 def main():
     drive_link = input("Enter the Google Drive link of the audio file: ").strip()
+
     file_id = extract_drive_file_id(drive_link)
 
     if not file_id:
         raise Exception("Invalid Google Drive link")
 
     print("📥 Downloading audio...")
-    audio_path = download_audio_from_drive(file_id)
+    audio_path = download_audio_from_drive(file_id, GOOGLE_DRIVE_API_KEY)
 
     print("🎧 Splitting audio into smaller chunks...")
     chunks = split_audio(audio_path)
@@ -43,19 +53,19 @@ def main():
     print("🧠 Generating summary...")
     summary_data = generate_summary(transcript_text)
 
-    print("📄 Creating DOCX file...")
-    docx_file = generate_docx(summary_data)
+    print("📄 Creating DOCX file in memory...")
+    docx_file_data = generate_docx(summary_data)
 
-    save_folder = "docs"
-    os.makedirs(save_folder, exist_ok=True)
-    final_path = os.path.join(save_folder, "Zoom Call Notes.docx")
-    shutil.move(docx_file, final_path)
-    print(f"💾 Saved DOCX locally to: {final_path}")
+    print("⬆️ Uploading DOCX to Google Drive...")
+    uploaded_link = upload_file_to_drive_in_memory(
+        docx_file_data, GOOGLE_DRIVE_FOLDER_ID
+    )
+    print(f"✅ File uploaded to Google Drive: {uploaded_link}")
 
     os.remove(audio_path)
     for chunk in chunks:
         os.remove(chunk)
-    print("✅ All done! File saved locally.")
+    print("✅ All done! File uploaded to Google Drive.")
 
 
 if __name__ == "__main__":

@@ -30,4 +30,4 @@ Thumbs.db
 credentials.json
 
 # Others
-.docx
+token.pickle
