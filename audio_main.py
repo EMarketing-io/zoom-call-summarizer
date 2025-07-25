@@ -9,11 +9,10 @@ from doc_generator import generate_docx
 from config import (
     GOOGLE_DRIVE_API_KEY,
     GOOGLE_DRIVE_FOLDER_ID,
-)  # Import the API Key and Folder ID from config
+)
 import io
 
 
-# Function to extract the file ID from the Google Drive URL
 def extract_drive_file_id(drive_link):
     match = re.search(r"/d/([a-zA-Z0-9_-]+)", drive_link)
     if match:
